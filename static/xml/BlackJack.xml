@@ -1,0 +1,28 @@
+<div>
+    <t t-if="!game.active">
+        <div class="blackjack-form-container">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="text-center">Welcome to Black Owl</h3>
+                    <form name="blackjack-form">
+                        <div class="blackjack-form-flex">
+                            <div>
+                                <label name="numberofplayers">Please set the number of players:</label><br/>
+                                <input class="mb-4" t-on-change="NumberOfPlayerInputs" type="number" id="numberofplayers" name="numberofplayers" value="2" min="2" max="4"/><br/>
+                            </div>
+                            <div class="play-name-input">
+                                <t t-if="game.hasOwnProperty('numOfPlayers')">
+                                    <t t-foreach="game.numOfPlayers" t-as="player" t-key="player.id">
+                                        <label name="player.name"><t t-esc="player.label"/></label><br/>
+                                        <input class="mb-4" t-att-id="player.id" t-att-name="player.name" type="text" max-lenght="15" t-on-change="UpdatePlayerNameOnChange" required="true"/><br/>
+                                    </t>
+                                </t>
+                            </div>
+                            <input type="button" class="btn btn-primary" t-on-click="StartGame" value="Start Game" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </t>
+</div>

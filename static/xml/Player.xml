@@ -1,0 +1,19 @@
+<div class="card player-card">
+    <div class="card-body">
+    <h2 class="player-title"><t t-esc="props.player.name"/></h2>
+    <div class="player-controls">
+        <t t-if="props.player.activePlayer">
+            <button class="m-1 btn btn-primary" t-on-click="PlayerHit">Hit</button>
+            <button class="m-1 btn btn-primary" t-on-click="PlayerStay">Stay</button>
+        </t>
+        <t t-else="">
+            <button disabled="true" class="m-1 btn btn-secondary" t-on-click="PlayerHit">Hit</button>
+            <button disabled="true" class="m-1 btn btn-secondary" t-on-click="PlayerStay">Stay</button>
+        </t>
+    </div>
+    <h5 class="player-points">Points: <t t-esc="props.player.points"/></h5>
+        <t t-foreach="props.player.hand" t-as="hand" t-key="hand.value">
+            <span t-att-class="hand.class" style="font-size: 100px"><t t-esc="hand.card"/></span>
+        </t>
+    </div>
+</div>

@@ -1,0 +1,19 @@
+<div class="game-board">
+        <div class="board-actions">
+            <div class="card">
+                <div class="card-body">
+                    <h1 id="main-title">BlackJack</h1>
+                    <t t-if="true">
+                        <div class="button-controls">
+                            <button class="m-1 btn btn-primary" t-on-click="RestartGame">Restart</button>
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </div>
+    <div class="game-area" t-on-toggle-hit="PlayerHit" t-on-toggle-stay="PlayerStay">
+        <t t-foreach="players" t-as="player" t-key="player.id">
+            <Player player="player"/>
+        </t>
+    </div>
+</div>
