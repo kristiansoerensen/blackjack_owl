@@ -11,7 +11,6 @@ export class Player extends Component {
     static props = ["player"];
 
     PlayerHit() {
-      console.log(this.props);
       this.trigger("toggle-hit", {id: this.props.player.id});
     }
 

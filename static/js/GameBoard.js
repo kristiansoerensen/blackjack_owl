@@ -89,7 +89,6 @@ export class GameBoard extends Component {
     }
 
     DrawCard(playerIndex) {
-        console.log(this.deck)
         let card = this.deck.shift();
         this.players[playerIndex].hand.push(card);
         this.players[playerIndex].points = this.CountCardPoints(this.players[playerIndex].hand);
@@ -99,17 +98,15 @@ export class GameBoard extends Component {
     CountCardPoints(hand){
         let noAceTotal = 0;
         hand.forEach(card => noAceTotal += card.cardId !== "A" ? card.value : 0);
-        console.log(noAceTotal);
 
         let aces = hand.filter(card => card.cardId === "A").length;
 
-        if (aces.length === 0 && aces < 1) {
+        if (aces.length === 0 && aces > 1) {
             let total = noAceTotal;
-            if (aces.length < 1) {
+            if (aces.length > 1) {
                 for (let i = 0; i < aces; i++) {
                     total += 1;
                 }
-                return 
             }
             return total;
         }
@@ -118,7 +115,7 @@ export class GameBoard extends Component {
         }
         else {
             for (let i = 0; i  < aces; i++) {
-                noAceTotal += 11;
+                noAceTotal += 1;
             }
         }
         return noAceTotal;
@@ -135,13 +132,10 @@ export class GameBoard extends Component {
     }
 
     PlayerHit(ev) {
-        console.log(ev.detail.id);
         // Get id of current player, and make function to hit / draw card to player
-        console.log("PlayerHit()");
         let playerIndex = this.GetPlayerIndex(ev.detail.id);
         if (this.players[playerIndex].activePlayer) {
             if (this.players[playerIndex].points < this.maksPoints) {
-                console.log("hit draw");
                 this.DrawCard(playerIndex);
             }
         }
@@ -192,9 +186,7 @@ export class GameBoard extends Component {
     CheckPlayerStatus(){
         let winners = [];
         for (const key in this.players) {
-            console.log(key);
             if (this.players[key].points === 21 && key !== "0") {
-                console.log("Winner");
                 winners.push(parseInt(key));
             }
         }

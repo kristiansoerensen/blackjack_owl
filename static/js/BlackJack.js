@@ -40,7 +40,6 @@ class BlackJack extends Component {
 
     // This function get triggered when the number input changes in the xml / html.
     NumberOfPlayerInputs(ev) {
-        console.log("teste");
         this.game.numOfPlayers = this.GeneratePlayerInputs(parseInt(ev.target.value));
     }
 
@@ -61,7 +60,6 @@ class BlackJack extends Component {
     }
 
     UpdatePlayerNameOnChange(ev) {
-        console.log(ev);
         let index = this.game.numOfPlayers.findIndex(play => play.id == ev.target.id);
         this.game.numOfPlayers[index].playerName = ev.target.value;
     }
