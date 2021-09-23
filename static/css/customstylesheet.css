@@ -37,6 +37,12 @@ label {
     width: 25%;
 }
 
+.dealer-house-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
 .button-controls {
     display: flex;
     justify-content: center;

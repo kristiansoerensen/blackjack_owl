@@ -1,7 +1,7 @@
 import LoadXML from "./utils/LoadXML.js";
 import {cards} from "./lib/cards.js";
+import {Player} from "./Player.js";
 const template = await LoadXML('../xml/GameBoard.xml', import.meta.url);
-import {Player} from "./Player.js"
 
 const { Component } = owl;
 const { xml } = owl.tags;
@@ -12,12 +12,24 @@ const GAMEBOARD_TEMPLATE = xml `${template}`;
 export class GameBoard extends Component {
     static template = GAMEBOARD_TEMPLATE;
     static components = {Player};
+
     players = useState([]);
     deck = [];
+    deckCount = useState({ value: 0 });
     maksPoints = 21;
     firstRound = true;
 
+    cardBack = "\uD83C\uDCA0";
+
     CreatePlayers() {
+        this.players.push({
+            id: 0,
+            name: "Dealer / House",
+            points: 0,
+            activePlayer: false,
+            hand: [],
+            status: "",
+        });
         for (let i = 1; i <= this.props.length; i++) {
             let player = {
                 id: i,
@@ -36,43 +48,88 @@ export class GameBoard extends Component {
         this.StartGame();
     }
 
-    StartGame() {
+    async StartGame() {
         this.ShuffleDeck()
         for (const key in this.players) {
             this.DrawCard(key);
             this.DrawCard(key);
         }
-        this.firstRound = false;
+        this.firstRound = true;
+        let winners = this.CheckPlayerStatus();
+        if (winners !== false) {
+            this.players[this.GetPlayerIndex(1)].activePlayer = false;
+            this.players[this.GetPlayerIndex(0)].activePlayer = true;
+            await this.ShowWinners(winners);
+        }
+    }
+
+    ShowWinners(winners) {
+        let winnerstring = "Winner(s): "; 
+        winners.forEach(win => winnerstring += "\n" + this.players[win].name);
+        this.deckCount.value = winnerstring;
     }
 
     ShuffleDeck() {
-        this.deck = cards;
+        for (let i = this.deck.length; i > -1; i--) {
+            this.deck.pop(i);
+        }
+        let tempDeck = cards;
         for (let _ = 0; _ < 100; _++) {
-            for (let i = this.deck.length - 1; i > 0; i--) {
+            for (let i = tempDeck.length - 1; i > 0; i--) {
                 let j = Math.floor(Math.random() * i);
-                let temp = this.deck[i];
-                this.deck[i] = this.deck[j];
-                this.deck[j] = temp;
+                let temp = tempDeck[i];
+                tempDeck[i] = tempDeck[j];
+                tempDeck[j] = temp;
             }
         }
-        this.deck = useState(this.deck);
+        tempDeck.forEach(element => {
+            this.deck.push(element);
+        });
+        this.deckCount.value = this.deck.length;
     }
 
     DrawCard(playerIndex) {
+        console.log(this.deck)
         let card = this.deck.shift();
         this.players[playerIndex].hand.push(card);
-        if (card.value === 1 && !this.firstRound){
-            this.players[playerIndex].points += confirm("You got an ace, do you want 11 point for it?") ? 11 : card.value;
-            return
+        this.players[playerIndex].points = this.CountCardPoints(this.players[playerIndex].hand);
+        this.deckCount.value = this.deck.length;
+    }
+
+    CountCardPoints(hand){
+        let noAceTotal = 0;
+        hand.forEach(card => noAceTotal += card.cardId !== "A" ? card.value : 0);
+        console.log(noAceTotal);
+
+        let aces = hand.filter(card => card.cardId === "A").length;
+
+        if (aces.length === 0 && aces < 1) {
+            let total = noAceTotal;
+            if (aces.length < 1) {
+                for (let i = 0; i < aces; i++) {
+                    total += 1;
+                }
+                return 
+            }
+            return total;
         }
-        this.players[playerIndex].points += card.value;
+        if (aces === 1 && noAceTotal <= 10) {
+            return noAceTotal += 11;
+        }
+        else {
+            for (let i = 0; i  < aces; i++) {
+                noAceTotal += 11;
+            }
+        }
+        return noAceTotal;
     }
 
     RestartGame() {
         // Reset all player array
-        this.players = useState([]);
+        for (let i = this.players.length; i > -1; i--) {
+            this.players.pop(i);
+        }
         this.CreatePlayers();
-        this.activePlayerId = 1;
         this.StartGame();
         this.render();
     }
@@ -82,11 +139,43 @@ export class GameBoard extends Component {
         // Get id of current player, and make function to hit / draw card to player
         console.log("PlayerHit()");
         let playerIndex = this.GetPlayerIndex(ev.detail.id);
-        console.log(playerIndex);
-        console.log(this.players[playerIndex]);
         if (this.players[playerIndex].activePlayer) {
             if (this.players[playerIndex].points < this.maksPoints) {
+                console.log("hit draw");
                 this.DrawCard(playerIndex);
+            }
+        }
+        if (this.firstRound) {
+            this.firstRound = false;
+            return;
+        }
+        if (this.players[playerIndex].points >= 21) {
+            this.NextPlayer(ev.detail.id);
+        }
+    }
+
+    NextPlayer(id) {
+        if(this.props.length > id){
+            this.players[this.GetPlayerIndex(id)].activePlayer = false;
+            this.players[this.GetPlayerIndex(id+1)].activePlayer = true;
+        }
+        else {
+            this.players[this.GetPlayerIndex(id)].activePlayer = false;
+            this.players[this.GetPlayerIndex(0)].activePlayer = true;
+            this.DealerHouse();
+        }
+    }
+
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async DealerHouse() {
+        let dealerObj = this.players[this.GetPlayerIndex(0)];
+        if(dealerObj.activePlayer) {
+            while (this.CountCardPoints(dealerObj.hand) < 17) {
+                await this.sleep(1000);
+                this.DrawCard(0);
             }
         }
     }
@@ -97,17 +186,20 @@ export class GameBoard extends Component {
 
     PlayerStay(ev) {
         // Get id of current player, and make function to switch to other player.
-        if(this.props.length > ev.detail.id){
-            this.players[this.GetPlayerIndex(ev.detail.id)].activePlayer = false;
-            this.players[this.GetPlayerIndex(ev.detail.id+1)].activePlayer = true;
-        }
-        else {
-            // ToDo: Fix this, so that the player gets a notification
-            console.log("Finish");
-        }
+        this.NextPlayer(ev.detail.id);
     }
 
     CheckPlayerStatus(){
-        console.log(this.players.every(player => player.points === 21));
+        let winners = [];
+        for (const key in this.players) {
+            console.log(key);
+            if (this.players[key].points === 21 && key !== "0") {
+                console.log("Winner");
+                winners.push(parseInt(key));
+            }
+        }
+        return winners.length !== 0 ? winners : false;
     }
+
+
 }

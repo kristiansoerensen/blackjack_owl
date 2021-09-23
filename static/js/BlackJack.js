@@ -18,6 +18,7 @@ class BlackJack extends Component {
     // This function gets executed when the component is mounted to the DOM
     mounted() {
         this.game.numOfPlayers = this.GeneratePlayerInputs(2);
+        this.env.deck = [];
     }
 
     // This triggers the game to start
@@ -68,8 +69,8 @@ class BlackJack extends Component {
 
 // Setup code
 function setup() {
-    owl.config.mode = "dev";
-    mount(BlackJack, { target: document.getElementById("blackjack-container") });
+    // owl.config.mode = "dev";
+    mount(BlackJack, { target: document.getElementById("blackjack-container")});
 }
 
 whenReady(setup);

@@ -7,13 +7,48 @@
                         <div class="button-controls">
                             <button class="m-1 btn btn-primary" t-on-click="RestartGame">Restart</button>
                         </div>
+                            <div class="dealer-house-container">
+                                <div class="card player-card" style="width: 50%">
+                                <div class="card-body">
+                                    <h3><t t-esc="deckCount.value"/></h3>
+                                </div>
+                            </div>
+                        </div>
                     </t>
                 </div>
             </div>
         </div>
+    <div class="dealer-house-container">
+        <div class="card player-card" style="width: 50%;">
+            <div class="card-body">
+                <t t-foreach="players" t-as="player" t-key="player.id">
+                    <t t-if="player.id === 0">
+                        <h2 class="player-title"><t t-esc="player.name"/></h2>
+                        <t t-if="player.activePlayer">
+                            <h5 class="player-points">Points: <t t-esc="player.points"/></h5>
+                            <t t-foreach="player.hand" t-as="hand" t-key="hand.value">
+                                <span t-att-class="hand.class" style="font-size: 100px"><t t-esc="hand.card"/></span>
+                            </t>
+                        </t>
+                        <t t-else="">
+                            <h5 class="player-points">Points: --</h5>
+                            <t t-if="player.hand.indexOf(0)">
+                                <span t-att-class="player.hand[0].class" style="font-size: 100px"><t t-esc="player.hand[0].card"/></span>
+                            </t>
+                            <t t-if="player.hand.indexOf(1)">
+                                <span class="text-primary" style="font-size: 100px"><t t-esc="cardBack"/></span>
+                            </t>
+                        </t>
+                    </t>
+                </t>
+            </div>
+        </div>
+    </div>
     <div class="game-area" t-on-toggle-hit="PlayerHit" t-on-toggle-stay="PlayerStay">
         <t t-foreach="players" t-as="player" t-key="player.id">
-            <Player player="player"/>
+            <t t-if="player.id !== 0">
+                <Player player="player"/>
+            </t>
         </t>
     </div>
 </div>
