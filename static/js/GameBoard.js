@@ -164,6 +164,7 @@ export class GameBoard extends Component {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
+    // Dealer / House function
     async DealerHouse() {
         let dealerObj = this.players[this.GetPlayerIndex(0)];
         if(dealerObj.activePlayer) {
@@ -172,6 +173,36 @@ export class GameBoard extends Component {
                 this.DrawCard(0);
             }
         }
+        let numArray = [];
+        this.players.forEach(player => { 
+            if (player.points < 22) {
+                numArray.push(parseInt(player.points));
+            }
+        });
+        let largestNumber = Math.max(...numArray);
+        console.log(Math.max(largestNumber));
+        let allMatchingLargestNum = this.players.filter(player => parseInt(player.points) === largestNumber);
+
+        console.log(allMatchingLargestNum);
+        if (allMatchingLargestNum.length === 1) {
+            if (allMatchingLargestNum[0].id === 0){
+                this.deckCount.value = "House Wins!";
+            }
+            else {
+                this.deckCount.value = "Winner: \n" + allMatchingLargestNum[0].name;
+            }
+        }
+        else {
+            let winnersStr = "Winners:";
+            for (const key in allMatchingLargestNum) {
+                if (allMatchingLargestNum[key].id !== 0){
+                    winnersStr += "\n" + allMatchingLargestNum[key].name;
+                }
+            }
+
+            this.deckCount.value = winnersStr;
+        }
+        
     }
 
     GetPlayerIndex(id) {
