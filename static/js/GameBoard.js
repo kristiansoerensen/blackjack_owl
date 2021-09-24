@@ -180,10 +180,8 @@ export class GameBoard extends Component {
             }
         });
         let largestNumber = Math.max(...numArray);
-        console.log(Math.max(largestNumber));
         let allMatchingLargestNum = this.players.filter(player => parseInt(player.points) === largestNumber);
 
-        console.log(allMatchingLargestNum);
         if (allMatchingLargestNum.length === 1) {
             if (allMatchingLargestNum[0].id === 0){
                 this.deckCount.value = "House Wins!";
