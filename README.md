@@ -35,6 +35,8 @@ Kristian Sørensen
     * Initial Release - No functionality yet...
 
 ## TODO:
+- [ ] Make better point checker
+- [ ] Make better winner message
 
 ## License
 
